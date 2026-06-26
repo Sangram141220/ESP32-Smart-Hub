@@ -25,9 +25,11 @@ jobs:
 
       - name: Compile
         run: |
-          # आता आपण कोणतीही फोल्डर कमांड वापरत नाही आहोत.
-          # जिथे फाईल आहे तिथेच राहून कंपाईल करत आहोत.
-          arduino-cli compile --fqbn esp32:esp32:esp32 . --output-dir build --libraries /home/runner/Arduino/libraries
+          # फाईल शोधून तिचे फोल्डर मिळवणे
+          FILE_PATH=$(find . -name "SmartHome.ino" | head -n 1)
+          SKETCH_DIR=$(dirname "$FILE_PATH")
+          echo "Compiling sketch in directory: $SKETCH_DIR"
+          arduino-cli compile --fqbn esp32:esp32:esp32 "$SKETCH_DIR" --output-dir build --libraries /home/runner/Arduino/libraries
 
       - name: Upload
         uses: actions/upload-artifact@v4
