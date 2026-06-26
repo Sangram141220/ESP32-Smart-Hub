@@ -29,15 +29,16 @@ jobs:
           arduino-cli lib install "ArduinoJson"
           git clone --depth 1 https://github.com/schreibfaul1/ESP32-audioI2S.git ~/Arduino/libraries/ESP32-audioI2S
 
-      - name: Verify Sketch
+      - name: Show Sketch
         run: |
+          pwd
           ls -la
           find . -name "*.ino"
 
-      - name: Compile Sketch
+      - name: Compile Firmware
         run: |
           arduino-cli compile \
-            --fqbn esp32:esp32:esp32 \
+            --fqbn "esp32:esp32:esp32:FlashSize=4M,PartitionScheme=huge_app" \
             . \
             --libraries ~/Arduino/libraries \
             --output-dir build
