@@ -19,43 +19,35 @@ jobs:
           curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | sh
           sudo mv bin/arduino-cli /usr/local/bin/
 
-      - name: Install ESP32 Core
+      - name: Configure Arduino CLI
         run: |
           arduino-cli config init
-
-          arduino-cli config add board_manager.additional_urls \
-          https://espressif.github.io/arduino-esp32/package_esp32_index.json
-
+          arduino-cli config add board_manager.additional_urls https://espressif.github.io/arduino-esp32/package_esp32_index.json
           arduino-cli core update-index
-
           arduino-cli core install esp32:esp32@3.3.0
 
       - name: Install Libraries
         run: |
-          mkdir -p ~/Arduino/libraries
-
           arduino-cli lib install ArduinoJson
+          git clone --depth=1 https://github.com/schreibfaul1/ESP32-audioI2S.git ~/Arduino/libraries/ESP32-audioI2S
 
-          git clone --depth=1 https://github.com/schreibfaul1/ESP32-audioI2S.git \
-          ~/Arduino/libraries/ESP32-audioI2S
-
-      - name: Compile
+      - name: Compile Firmware
         run: |
-          mkdir build
+          mkdir -p build
 
           arduino-cli compile \
-            --fqbn esp32:esp32:esp32 \
+            --fqbn esp32:esp32:esp32:PartitionScheme=huge_app \
+            --build-property build.flash_size=4MB \
+            --build-property upload.maximum_size=3145728 \
             --output-dir build \
             --export-binaries \
             .
 
       - name: Show Files
-        run: |
-          ls -lh build
+        run: ls -lh build
 
       - name: Upload Firmware
         uses: actions/upload-artifact@v4
         with:
           name: ESP32-Smart-Hub-Firmware
-          path: |
-            build/*.bin
+          path: build/*.bin
