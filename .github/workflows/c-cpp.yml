@@ -13,28 +13,23 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Environment
-        run: |
-          # रिपॉझिटरीचे नाव आणि फाइलचे नाव जुळवून घेणे
-          mkdir -p ESP32-Smart-Hub
-          cp *.ino ESP32-Smart-Hub/ 2>/dev/null || true
-
       - name: Install Arduino CLI
         uses: arduino/setup-arduino-cli@v2
 
-      - name: Install ESP32 Core and Libraries
+      - name: Install Dependencies
         run: |
           arduino-cli core update-index --additional-urls https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
           arduino-cli core install esp32:esp32@2.0.17 --additional-urls https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
           arduino-cli lib install "ArduinoJson"
           git clone --depth 1 https://github.com/schreibfaul1/ESP32-audioI2S /home/runner/Arduino/libraries/ESP32-audioI2S
 
-      - name: Compile ESP32 Sketch
+      - name: Compile
         run: |
-          # आता फाईल फोल्डरच्या आत शोधली जाईल
-          arduino-cli compile --fqbn esp32:esp32:esp32 ESP32-Smart-Hub --output-dir build --libraries /home/runner/Arduino/libraries
+          # आता आपण कोणतीही फोल्डर कमांड वापरत नाही आहोत.
+          # जिथे फाईल आहे तिथेच राहून कंपाईल करत आहोत.
+          arduino-cli compile --fqbn esp32:esp32:esp32 . --output-dir build --libraries /home/runner/Arduino/libraries
 
-      - name: Upload Binary Artifact
+      - name: Upload
         uses: actions/upload-artifact@v4
         with:
           name: ESP32-Smart-Hub-Firmware
