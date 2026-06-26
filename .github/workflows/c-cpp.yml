@@ -1,13 +1,44 @@
-    - name: Install ESP32 Core and Libraries
-      run: |
-        arduino-cli core update-index --additional-urls https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
-        arduino-cli core install esp32:esp32@2.0.17 --additional-urls https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
-        arduino-cli lib install "ArduinoJson"
-        
-        # जुने व्हर्जन (३.०.६) वापरणे जे २.०.१७ सोबत चालते
-        mkdir -p /home/runner/Arduino/libraries
-        cd /home/runner/Arduino/libraries
-        wget https://github.com/schreibfaul1/ESP32-audioI2S/archive/refs/tags/3.0.6.zip
-        unzip 3.0.6.zip
-        mv ESP32-audioI2S-3.0.6 ESP32-audioI2S
-        
+name: Build ESP32 Smart Home Binary
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Prepare Sketch Folder
+        run: |
+          mkdir -p SmartHome
+          mv *.ino SmartHome/ 2>/dev/null || true
+
+      - name: Install Arduino CLI
+        uses: arduino/setup-arduino-cli@v2
+
+      - name: Install ESP32 Core and Libraries
+        run: |
+          arduino-cli core update-index --additional-urls https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+          arduino-cli core install esp32:esp32@2.0.17 --additional-urls https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+          arduino-cli lib install "ArduinoJson"
+          mkdir -p /home/runner/Arduino/libraries
+          cd /home/runner/Arduino/libraries
+          wget https://github.com/schreibfaul1/ESP32-audioI2S/archive/refs/tags/3.0.6.zip
+          unzip 3.0.6.zip
+          mv ESP32-audioI2S-3.0.6 ESP32-audioI2S
+
+      - name: Compile ESP32 Sketch
+        run: |
+          arduino-cli compile --fqbn esp32:esp32:esp32 SmartHome --output-dir build --libraries /home/runner/Arduino/libraries
+
+      - name: Upload Binary Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ESP32-Smart-Hub-Firmware
+          path: build/*.bin
+          
