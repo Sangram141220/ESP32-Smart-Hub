@@ -1,4 +1,4 @@
-name: C/C++ CI
+name: Build ESP32 Smart Home Binary
 
 on:
   push:
@@ -8,16 +8,29 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: configure
-      run: ./configure
-    - name: make
-      run: make
-    - name: make check
-      run: make check
-    - name: make distcheck
-      run: make distcheck
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Install Arduino CLI
+      uses: arduino/setup-arduino-cli@v1
+
+    - name: Install ESP32 Core (v2.0.17 for DAC Support) and Libraries
+      run: |
+        arduino-cli core update-index --additional-urls https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+        arduino-cli core install esp32:esp32@2.0.17 --additional-urls https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+        arduino-cli lib install "ArduinoJson"
+        arduino-cli lib install "ESP32-audioI2S"
+
+    - name: Compile ESP32 Sketch
+      run: |
+        arduino-cli compile --fqbn esp32:esp32:esp32 SmartHome.ino --output-dir build
+
+    - name: Upload Binary Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: ESP32-Smart-Hub-Firmware
+        path: build/*.bin
+        
