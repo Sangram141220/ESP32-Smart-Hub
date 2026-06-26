@@ -3,9 +3,9 @@
 #include <esp_now.h>
 #include <WebServer.h>
 #include <ArduinoJson.h>
-#include "Audio.h"
-#include "soc/soc.h"
-#include "soc/rtc_cntl_reg.h"
+#include <Audio.h>
+#include <soc/soc.h>
+#include <soc/rtc_cntl_reg.h>
 
 // ==========================================
 // 📌 पिन कॉन्फिगरेशन (Hardware Pins)
