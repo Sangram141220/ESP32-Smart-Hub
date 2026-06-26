@@ -22,11 +22,16 @@ jobs:
         arduino-cli core update-index --additional-urls https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
         arduino-cli core install esp32:esp32@2.0.17 --additional-urls https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
         arduino-cli lib install "ArduinoJson"
-        arduino-cli lib install --git-url https://github.com/schreibfaul1/ESP32-audioI2S
+        # लायब्ररी मॅन्युअली डाउनलोड आणि इंस्टॉल करण्यासाठी खालील ओळी:
+        mkdir -p /home/runner/Arduino/libraries
+        cd /home/runner/Arduino/libraries
+        wget https://github.com/schreibfaul1/ESP32-audioI2S/archive/refs/heads/master.zip
+        unzip master.zip
+        mv ESP32-audioI2S-master ESP32-audioI2S
 
     - name: Compile ESP32 Sketch
       run: |
-        arduino-cli compile --fqbn esp32:esp32:esp32 SmartHome.ino --output-dir build
+        arduino-cli compile --fqbn esp32:esp32:esp32 SmartHome.ino --output-dir build --libraries /home/runner/Arduino/libraries
 
     - name: Upload Binary Artifact
       uses: actions/upload-artifact@v4
