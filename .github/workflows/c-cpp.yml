@@ -16,10 +16,8 @@ jobs:
 
     - name: Prepare Sketch Folder
       run: |
-        # फोल्डर स्ट्रक्चर नीट करणे
         mkdir -p SmartHome
         mv *.ino SmartHome/ 2>/dev/null || true
-        ls -R
 
     - name: Install Arduino CLI
       uses: arduino/setup-arduino-cli@v2
@@ -37,8 +35,8 @@ jobs:
 
     - name: Compile ESP32 Sketch
       run: |
-        # आता SmartHome फोल्डरमधून थेट फाईल कंपाईल होईल
-        arduino-cli compile --fqbn esp32:esp32:esp32 SmartHome --output-dir build --libraries /home/runner/Arduino/libraries
+        # इथे आपण -std=gnu++17 जोडले आहे, ज्यामुळे span लायब्ररीचा एरर येणार नाही
+        arduino-cli compile --fqbn esp32:esp32:esp32 --build-property "build.extra_flags=-std=gnu++17" SmartHome --output-dir build --libraries /home/runner/Arduino/libraries
 
     - name: Upload Binary Artifact
       uses: actions/upload-artifact@v4
